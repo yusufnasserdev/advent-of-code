@@ -23,30 +23,65 @@ class SecretEntrance : Solution {
 
     override fun solve(): String {
         val steps = processInput()
-        val password = calculatePassword(steps)
-        return "Password is $password"
+        val passwordNormal = calculatePasswordNormal(steps)
+        val passwordSpecial = calculatePasswordSpecial(steps)
+        return "Password using normal way is $passwordNormal\nPassword using 0x434C49434B is $passwordSpecial\n"
     }
 
     private fun processInput(): List<Step> {
         val steps = File("assets/day1.txt").readLines().map { line ->
-            print("line: $line\n")
             line.trim().toStep()
         }
 
         return steps
     }
 
-    private fun calculatePassword(steps: List<Step>): Int {
+    private fun calculatePasswordNormal(steps: List<Step>): Int {
         var password = 0
         var dial = STARTING_POINT
 
         steps.forEach { step ->
             dial += calculateRotation(step)
 
-            if (dial < MIN_PASSWORD) dial += MOD
+            if (dial < MIN_DIAL) dial += MOD
             dial %= MOD
 
             if (dial == 0) password++
+        }
+
+        return password
+    }
+
+    private fun calculatePasswordSpecial(steps: List<Step>): Int {
+        var password = 0
+        var dial = STARTING_POINT
+
+        steps.forEach { step ->
+            print(step)
+            val zeroEclipses = step.count / MOD
+            password += zeroEclipses
+
+            val stepRemainder = step.count % MOD
+            when (step.direction) {
+                Step.Direction.RIGHT -> {
+                    if (stepRemainder + dial >= MOD) password++
+                    dial += stepRemainder
+                }
+
+                Step.Direction.LEFT -> {
+                    if (dial - stepRemainder <= MIN_DIAL) password++
+                    dial -= stepRemainder
+                }
+            }
+
+            if (dial < MIN_DIAL) {
+                dial += MOD
+            }
+            dial %= MOD
+
+            print("\tpassword: $password")
+            println("\tdial: $dial")
+
         }
 
         return password
@@ -69,7 +104,7 @@ class SecretEntrance : Solution {
     private companion object {
         const val STARTING_POINT = 50
         const val MOD = 100
-        const val MIN_PASSWORD = 0
+        const val MIN_DIAL = 0
     }
 
 }
