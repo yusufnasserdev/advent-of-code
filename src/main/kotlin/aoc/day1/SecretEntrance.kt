@@ -57,31 +57,38 @@ class SecretEntrance : Solution {
         var dial = STARTING_POINT
 
         steps.forEach { step ->
-            print(step)
-            val zeroEclipses = step.count / MOD
-            password += zeroEclipses
+            var rotationAmount = step.count
 
-            val stepRemainder = step.count % MOD
             when (step.direction) {
                 Step.Direction.RIGHT -> {
-                    if (stepRemainder + dial >= MOD) password++
-                    dial += stepRemainder
+
+                    password += (rotationAmount / MOD)
+                    rotationAmount %= MOD
+
+                    if (rotationAmount + dial > MOD) {
+                        rotationAmount -= MOD
+                        password++
+                    }
+
+                    dial = Math.floorMod(dial + rotationAmount, MOD)
                 }
 
                 Step.Direction.LEFT -> {
-                    if (dial - stepRemainder <= MIN_DIAL) password++
-                    dial -= stepRemainder
+                    val oldDial = dial
+                    while (rotationAmount > oldDial) {
+                        if (oldDial == 0 && rotationAmount < MOD) {
+                            break
+                        }
+                        rotationAmount -= MOD
+                        password++
+                    }
+                    dial = Math.floorMod(dial - rotationAmount, MOD)
                 }
             }
 
-            if (dial < MIN_DIAL) {
-                dial += MOD
+            if (dial == 0) {
+                password++
             }
-            dial %= MOD
-
-            print("\tpassword: $password")
-            println("\tdial: $dial")
-
         }
 
         return password
