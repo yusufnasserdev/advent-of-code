@@ -28,7 +28,7 @@ class SecretEntrance : Solution {
     }
 
     private fun processInput(): List<Step> {
-        val steps = File("assets/day1.txt").readLines().map { line ->
+        val steps = File("assets/day1/tc2 .txt").readLines().map { line ->
             line.trim().toStep()
         }
 
