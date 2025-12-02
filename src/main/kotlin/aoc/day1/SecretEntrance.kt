@@ -2,7 +2,6 @@ package dev.yunas.aoc.day1
 
 import dev.yunas.Solution
 import java.io.File
-import kotlin.collections.forEach
 
 /**
  * Day 1: Secret Entrance
@@ -37,65 +36,56 @@ class SecretEntrance : Solution {
     }
 
     private fun calculatePasswordNormal(steps: List<Step>): Int {
-        var password = 0
-        var dial = STARTING_POINT
-
-        steps.forEach { step ->
-            dial += calculateRotation(step)
-
-            if (dial < MIN_DIAL) dial += MOD
-            dial %= MOD
-
-            if (dial == 0) password++
-        }
-
-        return password
+        return calculateZeros(steps, countPassZero = false)
     }
 
     private fun calculatePasswordSpecial(steps: List<Step>): Int {
-        var password = 0
-        var dial = STARTING_POINT
+        return calculateZeros(steps, countPassZero = true)
+    }
 
-        steps.forEach { step ->
-            var rotationAmount = step.count
+    private fun calculateZeros(steps: List<Step>, countPassZero: Boolean): Int {
+        var dial = STARTING_POINT
+        var zeros = 0
+
+        for (step in steps) {
+            var count = step.count
+
+            if (count >= MOD) {
+                if (countPassZero) {
+                    zeros += count / MOD
+                }
+                count %= MOD
+            }
 
             when (step.direction) {
-                Step.Direction.RIGHT -> {
-
-                    password += (rotationAmount / MOD)
-                    rotationAmount %= MOD
-
-                    if (rotationAmount + dial > MOD) {
-                        rotationAmount -= MOD
-                        password++
-                    }
-
-                    dial = Math.floorMod(dial + rotationAmount, MOD)
-                }
-
                 Step.Direction.LEFT -> {
-                    val oldDial = dial
-                    while (rotationAmount > oldDial) {
-                        if (oldDial == 0 && rotationAmount < MOD) {
-                            break
+                    var nextDial = dial - count
+                    if (nextDial < MIN_DIAL) {
+                        if (countPassZero && dial > MIN_DIAL) {
+                            zeros++
                         }
-                        rotationAmount -= MOD
-                        password++
+                        nextDial += MOD
                     }
-                    dial = Math.floorMod(dial - rotationAmount, MOD)
+                    dial = nextDial
+                }
+                Step.Direction.RIGHT -> {
+                    var nextDial = dial + count
+                    if (nextDial >= MOD) {
+                        if (countPassZero && nextDial != MOD) {
+                            zeros++
+                        }
+                        nextDial %= MOD
+                    }
+                    dial = nextDial
                 }
             }
 
-            if (dial == 0) {
-                password++
+            if (dial == MIN_DIAL) {
+                zeros++
             }
         }
 
-        return password
-    }
-
-    private fun calculateRotation(step: Step): Int {
-        return step.count * if (step.direction == Step.Direction.LEFT) -1 else 1
+        return zeros
     }
 
     private fun String.toStep(): Step {
