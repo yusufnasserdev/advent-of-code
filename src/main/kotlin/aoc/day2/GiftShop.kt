@@ -20,13 +20,10 @@ class GiftShop : Solution {
         return "Even Length Palindrome Sum: $palindromeSum, All Repeating Pattern Sum: $repeatingSum"
     }
 
-    data class NumberRange(
-        val start: Long,
-        val end: Long
-    )
+    data class NumberRange(val start: Long, val end: Long)
 
     private fun parseNumberRanges(): List<NumberRange> {
-        return File("assets/day2/ranges.txt").readLines()
+        return File("assets/day2/tc2.txt").readLines()
             .flatMap { line -> line.trim().split(',') }
             .map { it.toNumberRange() }
     }
