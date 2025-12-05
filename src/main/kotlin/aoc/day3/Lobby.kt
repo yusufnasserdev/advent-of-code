@@ -7,6 +7,7 @@ import java.io.File
  * Day 3: Lobby
  *
  */
+
 class Lobby : Solution {
     override fun solve(): String {
         val banks = processInput()
